@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Chat</title>
+</head>
+
+<body>
+
+    <h1>ChatGPT Clone</h1>
+
+    <p>
+        Welcome, {{ request.user.username }}
+    </p>
+
+    <a href="{% url 'logout' %}">
+        Logout
+    </a>
+
+    <hr>
+
+    <h2>Chat History</h2>
+
+    <a href="{% url 'new_chat' %}">
+        + New Chat
+    </a>
+
+    <hr>
+
+    {% if threads %}
+
+        {% for thread in threads %}
+
+            <p>
+                <a href="{% url 'chat_thread' thread.id %}">
+                    {{ thread.title }}
+                </a>
+            </p>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>
+            No conversations yet.
+        </p>
+
+    {% endif %}
+
+</body>
+
+</html>

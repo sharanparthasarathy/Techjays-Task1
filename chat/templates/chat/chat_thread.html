@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{{ thread.title }}</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            background: #ffffff;
+            color: #1f2937;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            width: 260px;
+            background: #171717;
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+
+            padding: 15px;
+        }
+
+        .new-chat {
+            display: block;
+
+            padding: 12px 15px;
+
+            border: 1px solid #444;
+            border-radius: 8px;
+
+            color: white;
+            text-decoration: none;
+
+            margin-bottom: 20px;
+
+            transition: 0.2s;
+        }
+
+        .new-chat:hover {
+            background: #2a2a2a;
+        }
+
+
+        .sidebar-title {
+            font-size: 12px;
+            color: #999;
+
+            margin-bottom: 10px;
+
+            text-transform: uppercase;
+        }
+
+
+        .history {
+            overflow-y: auto;
+        }
+
+
+        .history-item {
+            display: block;
+
+            padding: 10px;
+
+            margin-bottom: 4px;
+
+            border-radius: 7px;
+
+            color: #ddd;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+        }
+
+        .history-item:hover {
+            background: #2a2a2a;
+        }
+
+        .history-item.active {
+            background: #2f2f2f;
+        }
+
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+
+        .user-info {
+            border-top: 1px solid #333;
+
+            padding-top: 15px;
+
+            font-size: 14px;
+        }
+
+
+        .logout {
+            color: #aaa;
+
+            text-decoration: none;
+
+            display: inline-block;
+
+            margin-top: 8px;
+        }
+
+        .logout:hover {
+            color: white;
+        }
+
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            flex: 1;
+
+            display: flex;
+
+            flex-direction: column;
+
+            min-width: 0;
+        }
+
+
+        .topbar {
+            height: 60px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-bottom: 1px solid #eee;
+
+            font-weight: 600;
+
+            font-size: 16px;
+        }
+
+
+        /* =========================
+           MESSAGES
+        ========================= */
+
+        .messages {
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding: 30px 20px 120px;
+        }
+
+
+        .message-wrapper {
+            max-width: 850px;
+
+            margin: 0 auto 28px;
+
+            display: flex;
+
+            gap: 14px;
+        }
+
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 8px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        .user-avatar {
+            background: #2563eb;
+
+            color: white;
+        }
+
+
+        .ai-avatar {
+            background: #10a37f;
+
+            color: white;
+        }
+
+
+        .message-content {
+            flex: 1;
+
+            min-width: 0;
+
+            line-height: 1.65;
+
+            font-size: 15px;
+        }
+
+
+        .message-role {
+            font-weight: 600;
+
+            margin-bottom: 5px;
+
+            color: #111827;
+        }
+
+
+        /* =========================
+           MARKDOWN
+        ========================= */
+
+        .message-content p {
+            margin: 8px 0;
+        }
+
+
+        .message-content h1,
+        .message-content h2,
+        .message-content h3 {
+            margin-top: 20px;
+
+            margin-bottom: 10px;
+
+            color: #111827;
+        }
+
+
+        .message-content ul,
+        .message-content ol {
+            padding-left: 25px;
+        }
+
+
+        .message-content li {
+            margin: 5px 0;
+        }
+
+
+        .message-content strong {
+            font-weight: 700;
+        }
+
+
+        .message-content code {
+            background: #f1f5f9;
+
+            padding: 2px 6px;
+
+            border-radius: 5px;
+
+            font-family:
+                Consolas,
+                Monaco,
+                monospace;
+
+            font-size: 13px;
+        }
+
+
+        .message-content pre {
+            background: #111827;
+
+            color: #f9fafb;
+
+            padding: 16px;
+
+            border-radius: 10px;
+
+            overflow-x: auto;
+
+            margin: 15px 0;
+        }
+
+
+        .message-content pre code {
+            background: transparent;
+
+            padding: 0;
+
+            color: inherit;
+        }
+
+
+        .message-content table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin: 15px 0;
+
+            font-size: 14px;
+        }
+
+
+        .message-content th,
+        .message-content td {
+            border: 1px solid #ddd;
+
+            padding: 10px;
+
+            text-align: left;
+        }
+
+
+        .message-content th {
+            background: #f5f5f5;
+
+            font-weight: 600;
+        }
+
+
+        .message-content blockquote {
+            border-left: 4px solid #10a37f;
+
+            margin: 15px 0;
+
+            padding-left: 15px;
+
+            color: #555;
+        }
+
+
+        /* =========================
+           INPUT
+        ========================= */
+
+        .input-area {
+            position: fixed;
+
+            bottom: 0;
+
+            left: 260px;
+
+            right: 0;
+
+            background: white;
+
+            padding: 15px 20px 20px;
+
+            border-top: 1px solid #eee;
+        }
+
+
+        .input-container {
+            max-width: 850px;
+
+            margin: auto;
+
+            display: flex;
+
+            align-items: flex-end;
+
+            gap: 10px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 14px;
+
+            padding: 10px;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.05);
+        }
+
+
+        textarea {
+            flex: 1;
+
+            resize: none;
+
+            border: none;
+
+            outline: none;
+
+            font-size: 15px;
+
+            line-height: 1.5;
+
+            max-height: 180px;
+
+            font-family: inherit;
+        }
+
+
+        .send-button {
+            width: 40px;
+            height: 40px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #111827;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+
+        .send-button:hover {
+            background: #000;
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .input-area {
+                left: 0;
+            }
+
+            .messages {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .message-wrapper {
+                gap: 10px;
+            }
+
+            .avatar {
+                width: 30px;
+                height: 30px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <a
+            href="{% url 'new_chat' %}"
+            class="new-chat"
+        >
+            ＋ New Chat
+        </a>
+
+
+        <div class="sidebar-title">
+            Chat History
+        </div>
+
+
+        <div class="history">
+
+            {% for chat in request.user.chat_threads.all %}
+
+                <a
+                    href="{% url 'chat_thread' chat.id %}"
+                    class="history-item
+                    {% if chat.id == thread.id %}
+                        active
+                    {% endif %}"
+                >
+
+                    {{ chat.title }}
+
+                </a>
+
+            {% empty %}
+
+                <p style="color:#777;">
+                    No chats yet
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="user-info">
+
+                👤 {{ request.user.username }}
+
+                <br>
+
+                <a
+                    href="{% url 'logout' %}"
+                    class="logout"
+                >
+                    Logout
+                </a>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+
+        <header class="topbar">
+
+            {{ thread.title }}
+
+        </header>
+
+
+        <!-- MESSAGES -->
+
+        <section class="messages" id="messages">
+
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div class="message-wrapper">
+
+
+                        {% if message.role == "user" %}
+
+                            <div class="avatar user-avatar">
+                                You
+                            </div>
+
+                        {% else %}
+
+                            <div class="avatar ai-avatar">
+                                AI
+                            </div>
+
+                        {% endif %}
+
+
+                        <div class="message-content">
+
+                            <div class="message-role">
+
+                                {% if message.role == "user" %}
+                                    You
+                                {% else %}
+                                    AI
+                                {% endif %}
+
+                            </div>
+
+
+                            {% if message.role == "assistant" %}
+
+                                {{ message.formatted_content|safe }}
+
+                            {% else %}
+
+                                <p>
+                                    {{ message.content|linebreaksbr }}
+                                </p>
+
+                            {% endif %}
+
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+
+            {% else %}
+
+                <div
+                    style="
+                        text-align:center;
+                        margin-top:100px;
+                        color:#888;
+                    "
+                >
+
+                    <h2>How can I help you?</h2>
+
+                    <p>
+                        Ask anything and I'll try to help.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+        </section>
+
+
+        <!-- INPUT -->
+
+        <div class="input-area">
+
+            <form
+                method="POST"
+                class="input-container"
+            >
+
+                {% csrf_token %}
+
+
+                <textarea
+                    name="message"
+                    rows="1"
+                    placeholder="Message AI..."
+                    required
+                    autofocus
+                ></textarea>
+
+
+                <button
+                    type="submit"
+                    class="send-button"
+                >
+                    ↑
+                </button>
+
+            </form>
+
+        </div>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+    const messages = document.getElementById("messages");
+
+    messages.scrollTop = messages.scrollHeight;
+
+
+    const textarea =
+        document.querySelector("textarea");
+
+
+    textarea.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                this.form.submit();
+
+            }
+
+        }
+    );
+
+
+    textarea.addEventListener(
+        "input",
+        function() {
+
+            this.style.height = "auto";
+
+            this.style.height =
+                this.scrollHeight + "px";
+
+        }
+    );
+
+</script>
+
+
+</body>
+
+</html>
